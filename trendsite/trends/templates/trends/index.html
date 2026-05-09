@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrendBrief AI</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+        body {
+            background-color: #121212;
+            color: #EAEAEA;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 50px;
+            color: #FFFFFF;
+        }
+
+        .trend-card {
+            background-color: #1E1E1E;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+
+        .trend-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .trend-card h2 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 1.75rem;
+            color: #FFFFFF;
+        }
+
+        .trend-category {
+            display: inline-block;
+            background-color: #333;
+            color: #A9A9A9;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .trend-context {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #B3B3B3;
+        }
+
+        .trend-context a {
+            color: #4A90E2;
+            text-decoration: none;
+        }
+        .trend-context a:hover {
+            text-decoration: underline;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>TrendBrief AI</h1>
+            <form method="post" class="interest-form">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit">Filter</button>
+            </form>
+        </header>
+
+        {% if trends %}
+            {% for trend in trends %}
+            <div class="trend-card">
+                <span class="trend-category">{{ trend.category }}</span>
+                <h2>{{ trend.topic }}</h2>
+                <p class="trend-context">
+                    {{ trend.context }}
+                    {% if trend.source %}
+                        <a href="{{ trend.source }}" target="_blank" rel="noopener noreferrer"> (Source)</a>
+                    {% endif %}
+                </p>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="trend-card">
+                <p class="trend-context">No trends found matching your interests.</p>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

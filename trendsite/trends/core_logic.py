@@ -4,6 +4,7 @@ import time
 import pandas as pd
 from ddgs import DDGS
 import json
+import requests
 
 pd.set_option('future.no_silent_downcasting', True)
 
@@ -23,23 +24,44 @@ USER_INTERESTS = {
 }
 
 
-def fetch_trends(keywords, retries=3, delay=10):
-    if not keywords:
+def fetch_trends_safely(keywords, retries=3, delay=10):
+    """
+    Fetches Google Trends data for a list of keywords, skipping any that cause errors.
+    """
+    pytrends = TrendReq(hl='en-US', tz=360)
+    all_trends = []
+
+    for keyword in keywords:
+        print(f"Fetching trend for: {keyword}")
+        for i in range(retries):
+            try:
+                pytrends.build_payload([keyword], cat=0, timeframe='today 5-y', geo='', gprop='')
+                trend_df = pytrends.interest_over_time()
+                if not trend_df.empty:
+                    all_trends.append(trend_df.drop(columns='isPartial'))
+                break  # Success, break retry loop
+            except TooManyRequestsError:
+                if i < retries - 1:
+                    print(f"Too many requests for '{keyword}'. Retrying in {delay} seconds...")
+                    time.sleep(delay)
+                    delay *= 2
+                else:
+                    print(f"Skipping '{keyword}' after multiple failed attempts (Too Many Requests).")
+            except requests.exceptions.RequestException as e:
+                # Catching generic request exceptions, including 400 errors
+                print(f"Could not fetch trend for '{keyword}'. It may be an invalid term. Skipping.")
+                break # Break retry loop on client error
+            except Exception as e:
+                print(f"An unexpected error occurred for '{keyword}': {e}. Skipping.")
+                break
+
+    if not all_trends:
         return None
-    pytrends = TrendReq(hl='en-US', tz=360,timeout =(10,30))
-    for i in range(retries):
-        try:
-            pytrends.build_payload(keywords, cat=0, timeframe='today 7-d', geo='', gprop='')
-            trends = pytrends.interest_over_time()
-            return trends
-        except TooManyRequestsError:
-            if i < retries - 1:
-                print(f"Too many requests. Retrying in {delay} seconds...")
-                time.sleep(delay)
-                delay *= 2
-            else:
-                print("The request failed after multiple retries. Please wait a moment and try again.")
-                return None
+
+    # Concatenate all successful dataframes
+    final_df = pd.concat(all_trends, axis=1)
+    final_df = final_df.loc[:,~final_df.columns.duplicated()] # Remove duplicate columns if any
+    return final_df
 
 
 def get_duckduckgo_summary(topic):
@@ -65,11 +87,9 @@ def categorize_trend(topic, summary):
     return "General"
 
 
-if __name__ == "__main__":
+def get_trends_briefing():
     trending_topics = ["AI", "Machine Learning", "Stock Market", "Interest Rates", "UPSC Exams", "Indian Premier League"]
     structured_trends = []
-
-    print("\n🔥 Personalized Trend Briefing\n")
 
     for topic in trending_topics:
         summary, source = get_duckduckgo_summary(topic)
@@ -79,28 +99,14 @@ if __name__ == "__main__":
             trend_object = {
                 "topic": topic,
                 "context": summary,
-                "category": category
+                "category": category,
+                "source": source
             }
             structured_trends.append(trend_object)
-            
-            print(f"--- {topic} ---")
-            print(f"Category: {category}")
-            print(summary)
-            if source:
-                print(f"(Source: {source})")
-            print("-" * 50)
-            time.sleep(2)
-    if structured_trends:
-        print("\nStructured Trend Data (JSON)\n")
-        print(json.dumps(structured_trends, indent=4))
+            time.sleep(1)
+    
+    return structured_trends
 
-        interested_topics = [t["topic"] for t in structured_trends]
-        trends_data = fetch_trends(interested_topics)
-        
-        if trends_data is not None and not trends_data.empty:
-            print("\n Google Trends Data for Your Interests:")
-            print(trends_data)
-        else:
-            print("\nCould not fetch trends data for your interests.")
-    else:
-        print("No trends found matching your interests.")
+if __name__ == "__main__":
+    briefing = get_trends_briefing()
+    print(json.dumps(briefing, indent=4))
