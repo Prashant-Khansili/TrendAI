@@ -5,109 +5,351 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TrendBrief AI</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap');
+
+        :root {
+            --bg: #0c0d10;
+            --panel: #15181f;
+            --panel-border: rgba(255, 255, 255, 0.08);
+            --text: #e7e9ee;
+            --muted: #a6adbb;
+            --accent: #ffa24b;
+            --accent-2: #2dd4bf;
+            --glow: rgba(255, 162, 75, 0.15);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
 
         body {
-            background-color: #121212;
-            color: #EAEAEA;
-            font-family: 'Inter', sans-serif;
+            background: radial-gradient(1200px 600px at 10% -10%, #1b2233 0%, transparent 55%),
+                radial-gradient(900px 500px at 90% 10%, #1c1a2b 0%, transparent 55%),
+                var(--bg);
+            color: var(--text);
+            font-family: 'Space Grotesk', sans-serif;
             margin: 0;
-            padding: 40px 20px;
+            min-height: 100vh;
+            padding: 48px 20px 80px;
             display: flex;
             justify-content: center;
         }
 
         .container {
-            max-width: 800px;
+            max-width: 1200px;
             width: 100%;
+            position: relative;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 280px minmax(0, 1fr) 240px;
+            gap: 24px;
+            align-items: start;
+        }
+
+        .sidebar {
+            position: sticky;
+            top: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .sidebar-toggle {
+            background: transparent;
+            border: 1px solid var(--panel-border);
+            color: var(--text);
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: border-color 0.2s ease, color 0.2s ease;
+        }
+
+        .sidebar-toggle:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .sidebar-panel {
+            background: var(--panel);
+            border: 1px solid var(--panel-border);
+            border-radius: 18px;
+            padding: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+        }
+
+        .hero {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            padding: 24px 24px 12px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, rgba(255, 162, 75, 0.08), rgba(45, 212, 191, 0.05));
+            border: 1px solid var(--panel-border);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.35);
+            margin-bottom: 36px;
         }
 
         header h1 {
-            font-size: 3rem;
+            font-family: 'Fraunces', serif;
+            font-size: clamp(2.4rem, 3vw + 1.5rem, 3.6rem);
             font-weight: 700;
-            text-align: center;
-            margin-bottom: 50px;
-            color: #FFFFFF;
+            letter-spacing: 0.5px;
+            margin: 0;
+        }
+
+        header p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 1.05rem;
+        }
+
+        .interest-form {
+            display: grid;
+            gap: 14px;
+            margin-top: 10px;
+        }
+
+        .interest-form ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        .interest-form li {
+            background: var(--panel);
+            border: 1px solid var(--panel-border);
+            padding: 10px 12px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .interest-form input[type="checkbox"] {
+            accent-color: var(--accent);
+            transform: scale(1.1);
+        }
+
+        .interest-form button {
+            justify-self: start;
+            background: linear-gradient(120deg, var(--accent), var(--accent-2));
+            border: none;
+            color: #0b0d12;
+            padding: 10px 22px;
+            border-radius: 999px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 12px 24px var(--glow);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .interest-form button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 16px 28px var(--glow);
+        }
+
+        .trend-grid {
+            display: grid;
+            gap: 18px;
         }
 
         .trend-card {
-            background-color: #1E1E1E;
-            border: 1px solid #333;
-            border-radius: 12px;
-            padding: 25px;
-            margin-bottom: 25px;
-            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            background: var(--panel);
+            border: 1px solid var(--panel-border);
+            border-radius: 16px;
+            padding: 22px 24px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .trend-card::after {
+            content: "";
+            position: absolute;
+            inset: -40% 60% auto auto;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(255, 162, 75, 0.18), transparent 60%);
+            opacity: 0;
+            transition: opacity 0.2s ease;
         }
 
         .trend-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+        }
+
+        .trend-card:hover::after {
+            opacity: 1;
         }
 
         .trend-card h2 {
-            margin-top: 0;
-            margin-bottom: 10px;
-            font-size: 1.75rem;
-            color: #FFFFFF;
+            margin: 0 0 10px;
+            font-size: 1.5rem;
+            color: #ffffff;
         }
 
         .trend-category {
-            display: inline-block;
-            background-color: #333;
-            color: #A9A9A9;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background-color: rgba(255, 255, 255, 0.08);
+            color: var(--accent-2);
             padding: 5px 12px;
-            border-radius: 15px;
+            border-radius: 999px;
             font-size: 0.8rem;
             font-weight: 600;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             text-transform: uppercase;
         }
 
         .trend-context {
             font-size: 1rem;
             line-height: 1.6;
-            color: #B3B3B3;
+            color: var(--muted);
         }
 
         .trend-context a {
-            color: #4A90E2;
+            color: var(--accent);
             text-decoration: none;
+            margin-left: 6px;
         }
+
         .trend-context a:hover {
             text-decoration: underline;
         }
 
+        .right-rail {
+            position: sticky;
+            top: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .rail-card {
+            background: rgba(21, 24, 31, 0.7);
+            border: 1px solid var(--panel-border);
+            border-radius: 16px;
+            padding: 18px;
+        }
+
+        .rail-card h3 {
+            margin: 0 0 10px;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--accent);
+        }
+
+        .rail-card p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .layout.sidebar-collapsed {
+            grid-template-columns: 60px minmax(0, 1fr) 240px;
+        }
+
+        .layout.sidebar-collapsed .sidebar-panel {
+            opacity: 0;
+            pointer-events: none;
+            transform: translateX(-12px);
+            height: 0;
+            padding: 0;
+            border: none;
+        }
+
+        .layout.sidebar-collapsed .sidebar {
+            gap: 0;
+        }
+
+        @media (max-width: 640px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar,
+            .right-rail {
+                position: static;
+            }
+
+            .hero {
+                padding: 18px 18px 12px;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>TrendBrief AI</h1>
-            <form method="post" class="interest-form">
-                {% csrf_token %}
-                {{ form.as_p }}
-                <button type="submit">Filter</button>
-            </form>
-        </header>
+        <div class="layout" id="layout">
+            <aside class="sidebar">
+                <button class="sidebar-toggle" type="button" id="toggleSidebar">Hide filters</button>
+                <div class="sidebar-panel">
+                    <h3>Filter</h3>
+                    <p class="trend-context">Choose the focus areas that should shape your feed.</p>
+                    <form method="post" class="interest-form">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <button type="submit">Update feed</button>
+                    </form>
+                </div>
+            </aside>
 
-        {% if trends %}
-            {% for trend in trends %}
-            <div class="trend-card">
-                <span class="trend-category">{{ trend.category }}</span>
-                <h2>{{ trend.topic }}</h2>
-                <p class="trend-context">
-                    {{ trend.context }}
-                    {% if trend.source %}
-                        <a href="{{ trend.source }}" target="_blank" rel="noopener noreferrer"> (Source)</a>
-                    {% endif %}
-                </p>
-            </div>
-            {% endfor %}
-        {% else %}
-            <div class="trend-card">
-                <p class="trend-context">No trends found matching your interests.</p>
-            </div>
-        {% endif %}
+            <main>
+                <header class="hero">
+                    <h1>TrendBrief AI</h1>
+                    <p>Hand-picked headlines that match your focus. Update your interests and refresh your feed.</p>
+                </header>
+
+                {% if trends %}
+                    <div class="trend-grid">
+                        {% for trend in trends %}
+                        <div class="trend-card">
+                            <span class="trend-category">{{ trend.category }}</span>
+                            <h2>{{ trend.topic }}</h2>
+                            <p class="trend-context">
+                                {{ trend.context }}
+                                {% if trend.source %}
+                                    <a href="{{ trend.source }}" target="_blank">Read more</a>
+                                {% endif %}
+                            </p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p>No trends to display at the moment.</p>
+                {% endif %}
+            </main>
+
+            <aside class="right-rail">
+                <div class="rail-card">
+                    <h3>Now</h3>
+                    <p>Track the most active topics and keep a pulse on your categories.</p>
+                </div>
+                <div class="rail-card">
+                    <h3>Next</h3>
+                    <p>Promote stories that matter. This space is ready for your agent insights.</p>
+                </div>
+            </aside>
+        </div>
     </div>
+    <script>
+        const toggleButton = document.getElementById('toggleSidebar');
+        const layout = document.getElementById('layout');
+
+        toggleButton.addEventListener('click', () => {
+            const isCollapsed = layout.classList.toggle('sidebar-collapsed');
+            toggleButton.textContent = isCollapsed ? 'Show filters' : 'Hide filters';
+        });
+    </script>
 </body>
 </html>

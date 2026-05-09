@@ -8,3 +8,7 @@ __pycache__/
 
 #    documentation file
 projectROamap.txt
+
+# Ignore .env file
+.env
+

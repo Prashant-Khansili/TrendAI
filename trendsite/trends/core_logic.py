@@ -9,19 +9,21 @@ import requests
 pd.set_option('future.no_silent_downcasting', True)
 
 # Define user interests and associated keywords
+
 USER_INTERESTS = {
-    "AI & Tech": ["artificial intelligence", "ai","MCP" "machine learning", "tech", "software"],
-    "Finance": ["finance", "markets", "stocks", "economy", "interest rates"],
-    "Law" : ["Law" , "Bar Council", "Legal", "Court", "Justice"],
-    "Health": ["health", "medicine", "wellness", "fitness"],
-    "Entertainment": ["entertainment", "movies", "music", "celebrities"],
-    "India": ["India", "Indian", "Delhi", "Mumbai", "Bangalore"],
-    "Indian Politics": ["Indian politics", "BJP", "Congress", "Modi", "Rahul Gandhi"],
-    "Geopolitics": ["geopolitics", "international relations", "diplomacy", "global affairs"],
-    "Competitive Exams": ["competitive exams", "UPSC", "SSC", "bank exams", "railway exams"],
-    "Sports": ["sports", "football", "cricket", "tennis", "olympics" ,"IPL",  "FIFA", "NBA"],
-    "Social Issues": ["social issues", "poverty", "inequality", "climate change", "human rights"]
+    "AI & Tech": ["artificial intelligence", "ai", "mcp", "machine learning", "tech", "software"],
+    "Finance": ["finance", "markets", "stocks", "economy", "interest rates", "stock market", "share market", "nifty", "sensex"],
+    "Law": ["law", "bar council", "legal", "court", "justice", "supreme court", "high court"],
+    "Health": ["health", "medicine", "wellness", "fitness", "hospital", "disease"],
+    "Entertainment": ["entertainment", "movies", "music", "celebrities", "actor", "actress", "film", "trailer"],
+    "India": ["india", "indian", "delhi", "mumbai", "bangalore", "chennai", "hyderabad"],
+    "Indian Politics": ["indian politics", "bjp", "congress", "modi", "rahul gandhi", "election", "parliament"],
+    "Geopolitics": ["geopolitics", "international relations", "diplomacy", "global affairs", "war", "united nations", "nato"],
+    "Competitive Exams": ["competitive exams", "upsc", "ssc", "bank exams", "railway exams", "jee", "neet"],
+    "Sports": ["sports", "football", "cricket", "tennis", "olympics", "ipl", "fifa", "nba", "world cup"],
+    "Social Issues": ["social issues", "poverty", "inequality", "climate change", "human rights", "pollution"]
 }
+
 
 
 def fetch_trends_safely(keywords, retries=3, delay=10):
@@ -87,11 +89,26 @@ def categorize_trend(topic, summary):
     return "General"
 
 
-def get_trends_briefing():
-    trending_topics = ["AI", "Machine Learning", "Stock Market", "Interest Rates", "UPSC Exams", "Indian Premier League"]
+def get_realtime_trends():
+    """Fetches real-time trending searches from Google Trends."""
+    try:
+    
+        pytrends = TrendReq(hl='en-US', tz=360)
+        # Use realtime_trending_searches for more reliable real-time data
+        trending_searches_df = pytrends.realtime_trending_searches(pn='US') 
+        return trending_searches_df['title'].tolist()
+    except Exception as e:
+        print(f"Could not fetch real-time trends: {e}")
+        return []
+
+def get_trends_briefing(selected_interests=None):
+    trending_topics = get_realtime_trends()
+    if not trending_topics:
+        trending_topics = ["AI", "Machine Learning", "Stock Market", "Interest Rates", "UPSC Exams", "Indian Premier League"] # Fallback
+    
     structured_trends = []
 
-    for topic in trending_topics:
+    for topic in trending_topics[:20]: # Limit to top 20 topics
         summary, source = get_duckduckgo_summary(topic)
         category = categorize_trend(topic, summary)
 

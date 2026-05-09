@@ -1,8 +1,14 @@
 from django.shortcuts import render
-from .core_logic import get_trends_briefing
+from .services.news_service import fetch_news
 from .forms import InterestForm
 
 def homepage(request):
+    category = request.GET.get("category", "technology")
     form = InterestForm()
-    trends_data = get_trends_briefing()
-    return render(request, 'trends/index.html', {'trends': trends_data, 'form': form})
+    trends = fetch_news(category)
+
+    return render(request, "trends/index.html", {
+        "trends": trends,
+        "category": category,
+        "form": form
+    })
