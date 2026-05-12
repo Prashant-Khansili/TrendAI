@@ -5,25 +5,9 @@ import pandas as pd
 from ddgs import DDGS
 import json
 import requests
+from .interests import USER_INTERESTS
 
 pd.set_option('future.no_silent_downcasting', True)
-
-# Define user interests and associated keywords
-
-USER_INTERESTS = {
-    "AI & Tech": ["artificial intelligence", "ai", "mcp", "machine learning", "tech", "software"],
-    "Finance": ["finance", "markets", "stocks", "economy", "interest rates", "stock market", "share market", "nifty", "sensex"],
-    "Law": ["law", "bar council", "legal", "court", "justice", "supreme court", "high court"],
-    "Health": ["health", "medicine", "wellness", "fitness", "hospital", "disease"],
-    "Entertainment": ["entertainment", "movies", "music", "celebrities", "actor", "actress", "film", "trailer"],
-    "India": ["india", "indian", "delhi", "mumbai", "bangalore", "chennai", "hyderabad"],
-    "Indian Politics": ["indian politics", "bjp", "congress", "modi", "rahul gandhi", "election", "parliament"],
-    "Geopolitics": ["geopolitics", "international relations", "diplomacy", "global affairs", "war", "united nations", "nato"],
-    "Competitive Exams": ["competitive exams", "upsc", "ssc", "bank exams", "railway exams", "jee", "neet"],
-    "Sports": ["sports", "football", "cricket", "tennis", "olympics", "ipl", "fifa", "nba", "world cup"],
-    "Social Issues": ["social issues", "poverty", "inequality", "climate change", "human rights", "pollution"]
-}
-
 
 
 def fetch_trends_safely(keywords, retries=3, delay=10):
@@ -107,12 +91,13 @@ def get_trends_briefing(selected_interests=None):
         trending_topics = ["AI", "Machine Learning", "Stock Market", "Interest Rates", "UPSC Exams", "Indian Premier League"] # Fallback
     
     structured_trends = []
+    selected_set = set(selected_interests or [])
 
     for topic in trending_topics[:20]: # Limit to top 20 topics
         summary, source = get_duckduckgo_summary(topic)
         category = categorize_trend(topic, summary)
 
-        if category:
+        if category and (not selected_set or category in selected_set):
             trend_object = {
                 "topic": topic,
                 "context": summary,

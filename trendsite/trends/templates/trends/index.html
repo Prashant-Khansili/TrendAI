@@ -205,7 +205,26 @@
             border-radius: 999px;
             font-size: 0.8rem;
             font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .trend-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
             margin-bottom: 12px;
+        }
+
+        .trend-source {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background-color: rgba(255, 255, 255, 0.08);
+            color: var(--accent);
+            padding: 5px 12px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
             text-transform: uppercase;
         }
 
@@ -296,8 +315,7 @@
                 <div class="sidebar-panel">
                     <h3>Filter</h3>
                     <p class="trend-context">Choose the focus areas that should shape your feed.</p>
-                    <form method="post" class="interest-form">
-                        {% csrf_token %}
+                    <form method="get" class="interest-form">
                         {{ form.as_p }}
                         <button type="submit">Update feed</button>
                     </form>
@@ -314,7 +332,12 @@
                     <div class="trend-grid">
                         {% for trend in trends %}
                         <div class="trend-card">
-                            <span class="trend-category">{{ trend.category }}</span>
+                            <div class="trend-meta">
+                                <span class="trend-category">{{ trend.category }}</span>
+                                {% if trend.source_tag %}
+                                    <span class="trend-source">{{ trend.source_tag }}</span>
+                                {% endif %}
+                            </div>
                             <h2>{{ trend.topic }}</h2>
                             <p class="trend-context">
                                 {{ trend.context }}
