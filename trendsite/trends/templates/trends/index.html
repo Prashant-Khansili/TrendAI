@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TrendBrief AI</title>
+    <title>TrendAI</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap');
 
@@ -78,6 +78,21 @@
             border-radius: 18px;
             padding: 20px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+            max-height: calc(100vh - 160px);
+            overflow-y: auto;
+        }
+
+        .sidebar-panel::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .sidebar-panel::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 999px;
+        }
+
+        .sidebar-panel::-webkit-scrollbar-track {
+            background: transparent;
         }
 
         .hero {
@@ -107,9 +122,33 @@
         }
 
         .interest-form {
-            display: grid;
+            display: flex;
+            flex-direction: column;
             gap: 14px;
             margin-top: 10px;
+        }
+
+        .interest-form p {
+            margin: 0;
+        }
+
+        .filter-options {
+            display: grid;
+            gap: 12px;
+            padding-bottom: 12px;
+        }
+
+        .filter-actions {
+            position: sticky;
+            bottom: -1px;
+            display: flex;
+            justify-content: flex-start;
+            padding-top: 12px;
+            padding-bottom: 6px;
+            background: var(--panel);
+            border-top: 1px solid var(--panel-border);
+            box-shadow: 0 -12px 24px rgba(0, 0, 0, 0.35);
+            z-index: 3;
         }
 
         .interest-form ul {
@@ -316,15 +355,19 @@
                     <h3>Filter</h3>
                     <p class="trend-context">Choose the focus areas that should shape your feed.</p>
                     <form method="get" class="interest-form">
-                        {{ form.as_p }}
-                        <button type="submit">Update feed</button>
+                        <div class="filter-options">
+                            {{ form.as_p }}
+                        </div>
+                        <div class="filter-actions">
+                            <button type="submit">Update feed</button>
+                        </div>
                     </form>
                 </div>
             </aside>
 
             <main>
                 <header class="hero">
-                    <h1>TrendBrief AI</h1>
+                    <h1>TrendAI</h1>
                     <p>Hand-picked headlines that match your focus. Update your interests and refresh your feed.</p>
                 </header>
 

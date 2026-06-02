@@ -64,7 +64,26 @@ Fork the project and submit a pull request
 
 This project is open for improvements like:
 
-AI-based content generation
+AI-based content generation: 
+    This week
+    Step 1
+
+    AI Post Generator
+
+    Input:
+
+    Topic
+    Summary
+    Category
+
+    Output:
+
+    LinkedIn post
+    Instagram caption
+    X/Twitter post
+    Hashtags
+
+Even a simple LLM integration is enough.
 Trend prediction system
 Social media post automation
 User personalization dashboard
