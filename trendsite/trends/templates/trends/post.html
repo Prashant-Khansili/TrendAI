@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrendAI Post</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap');
+
+        :root {
+            --bg: #0c0d10;
+            --panel: #15181f;
+            --panel-border: rgba(255, 255, 255, 0.08);
+            --text: #e7e9ee;
+            --muted: #a6adbb;
+            --accent: #ffa24b;
+            --accent-2: #2dd4bf;
+            --glow: rgba(255, 162, 75, 0.15);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: radial-gradient(1200px 600px at 10% -10%, #1b2233 0%, transparent 55%),
+                radial-gradient(900px 500px at 90% 10%, #1c1a2b 0%, transparent 55%),
+                var(--bg);
+            color: var(--text);
+            font-family: 'Space Grotesk', sans-serif;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 72px minmax(0, 1fr);
+            min-height: 100vh;
+        }
+
+        .toolbar {
+            background: rgba(21, 24, 31, 0.9);
+            border-right: 1px solid var(--panel-border);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 12px;
+            gap: 16px;
+        }
+
+        .tool-button {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            border: 1px solid var(--panel-border);
+            background: transparent;
+            color: var(--text);
+            display: grid;
+            place-items: center;
+            cursor: pointer;
+            transition: border-color 0.2s ease, color 0.2s ease;
+        }
+
+        .tool-button:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .content {
+            padding: 48px 40px 60px;
+            display: grid;
+            gap: 24px;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, rgba(255, 162, 75, 0.08), rgba(45, 212, 191, 0.05));
+            border: 1px solid var(--panel-border);
+            border-radius: 18px;
+            padding: 24px 28px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.35);
+        }
+
+        .hero h1 {
+            font-family: 'Fraunces', serif;
+            margin: 0 0 6px;
+            font-size: clamp(2rem, 2vw + 1.4rem, 3rem);
+        }
+
+        .hero p {
+            margin: 0;
+            color: var(--muted);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+            gap: 24px;
+        }
+
+        .card {
+            background: var(--panel);
+            border: 1px solid var(--panel-border);
+            border-radius: 16px;
+            padding: 20px 22px;
+        }
+
+        .card h2 {
+            margin: 0 0 12px;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--accent);
+        }
+
+        .output {
+            white-space: pre-wrap;
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .meta-list {
+            display: grid;
+            gap: 10px;
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+
+        .meta-list strong {
+            color: var(--text);
+        }
+
+        .error {
+            background: rgba(255, 77, 79, 0.12);
+            border: 1px solid rgba(255, 77, 79, 0.4);
+            color: #ffb3b4;
+            padding: 16px;
+            border-radius: 12px;
+        }
+
+        @media (max-width: 900px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .toolbar {
+                flex-direction: row;
+                border-right: none;
+                border-bottom: 1px solid var(--panel-border);
+                justify-content: flex-start;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <aside class="toolbar">
+            <button class="tool-button" type="button" id="copyButton" title="Copy output">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M9 9V6a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <rect x="4" y="9" width="11" height="11" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                </svg>
+            </button>
+        </aside>
+        <main class="content">
+            <section class="hero">
+                <h1>Generated Post</h1>
+                <p>Copy the output from the toolbar or refine preferences in the studio.</p>
+            </section>
+
+            {% if generation_error %}
+                <div class="error">{{ generation_error }}</div>
+            {% elif post %}
+                <div class="grid">
+                    <div class="card">
+                        <h2>Output</h2>
+                        <div class="output" id="generatedOutput">{{ post.generated_text }}</div>
+                    </div>
+                    <div class="card">
+                        <h2>Context</h2>
+                        <div class="meta-list">
+                            <div><strong>Topic:</strong> {{ post.topic }}</div>
+                            <div><strong>Category:</strong> {{ post.category }}</div>
+                            <div><strong>Platforms:</strong> {{ post.platforms }}</div>
+                            <div><strong>Tone:</strong> {{ post.tone|default:"-" }}</div>
+                            <div><strong>Audience:</strong> {{ post.audience|default:"-" }}</div>
+                            <div><strong>Length:</strong> {{ post.length|default:"-" }}</div>
+                            <div><strong>Emoji style:</strong> {{ post.emoji_style|default:"-" }}</div>
+                            <div><strong>CTA:</strong> {{ post.cta|default:"-" }}</div>
+                            <div><strong>Hashtags:</strong> {{ post.hashtags|default:"-" }}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <h2>Trend Summary</h2>
+                    <div class="output">{{ post.context }}</div>
+                </div>
+            {% else %}
+                <div class="card">
+                    <h2>No Post Selected</h2>
+                    <p class="output">Generate a post first, then you will be redirected here.</p>
+                </div>
+            {% endif %}
+        </main>
+    </div>
+    <script>
+        const copyButton = document.getElementById('copyButton');
+        const output = document.getElementById('generatedOutput');
+
+        if (copyButton && output) {
+            copyButton.addEventListener('click', async () => {
+                const text = output.innerText.trim();
+                if (!text) {
+                    return;
+                }
+
+                try {
+                    await navigator.clipboard.writeText(text);
+                    copyButton.style.borderColor = 'var(--accent-2)';
+                    copyButton.style.color = 'var(--accent-2)';
+                } catch (err) {
+                    console.error('Copy failed', err);
+                }
+            });
+        }
+    </script>
+</body>
+</html>

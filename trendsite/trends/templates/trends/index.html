@@ -283,6 +283,172 @@
             text-decoration: underline;
         }
 
+        .select-trend {
+            margin-top: 12px;
+            display: flex;
+            justify-content: flex-start;
+        }
+
+        .select-trend button {
+            background: transparent;
+            border: 1px solid var(--panel-border);
+            color: var(--text);
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: border-color 0.2s ease, color 0.2s ease;
+        }
+
+        .select-trend button:hover {
+            border-color: var(--accent-2);
+            color: var(--accent-2);
+        }
+
+        .post-studio {
+            display: grid;
+            gap: 12px;
+        }
+
+        .post-studio-inner {
+            max-height: calc(100vh - 420px);
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+
+        .post-studio-actions {
+            position: sticky;
+            bottom: 0;
+            background: linear-gradient(180deg, rgba(21,24,31,0.0), var(--panel));
+            padding-top: 10px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        .post-studio .trend-context {
+            font-size: 0.9rem;
+        }
+
+        .post-form {
+            display: grid;
+            gap: 10px;
+        }
+
+        .post-grid {
+            display: grid;
+            gap: 10px;
+        }
+
+        .post-field {
+            display: grid;
+            gap: 6px;
+        }
+
+        .post-field label {
+            font-size: 0.85rem;
+            color: var(--muted);
+        }
+
+        .post-field input,
+        .post-field select {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid var(--panel-border);
+            background: #0f1218;
+            color: var(--text);
+            font-family: inherit;
+        }
+
+        .post-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .post-output {
+            margin-top: 12px;
+            padding: 14px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px dashed var(--panel-border);
+            white-space: pre-wrap;
+            color: var(--text);
+        }
+
+        .post-error {
+            margin-top: 12px;
+            padding: 12px;
+            border-radius: 12px;
+            background: rgba(255, 77, 79, 0.12);
+            border: 1px solid rgba(255, 77, 79, 0.4);
+            color: #ffb3b4;
+        }
+
+        .post-generator {
+            margin-top: 16px;
+            padding: 16px;
+            border-radius: 14px;
+            border: 1px solid var(--panel-border);
+            background: rgba(12, 13, 16, 0.6);
+            display: grid;
+            gap: 12px;
+        }
+
+        .post-grid {
+            display: grid;
+            gap: 10px;
+        }
+
+        .post-field {
+            display: grid;
+            gap: 6px;
+        }
+
+        .post-field label {
+            font-size: 0.85rem;
+            color: var(--muted);
+        }
+
+        .post-field input,
+        .post-field select,
+        .post-field textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid var(--panel-border);
+            background: #0f1218;
+            color: var(--text);
+            font-family: inherit;
+        }
+
+        .post-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .post-output {
+            margin-top: 12px;
+            padding: 14px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px dashed var(--panel-border);
+            white-space: pre-wrap;
+            color: var(--text);
+        }
+
+        .post-error {
+            margin-top: 12px;
+            padding: 12px;
+            border-radius: 12px;
+            background: rgba(255, 77, 79, 0.12);
+            border: 1px solid rgba(255, 77, 79, 0.4);
+            color: #ffb3b4;
+        }
+
         .right-rail {
             position: sticky;
             top: 24px;
@@ -388,6 +554,13 @@
                                     <a href="{{ trend.source }}" target="_blank">Read more</a>
                                 {% endif %}
                             </p>
+                            <form method="get" class="select-trend">
+                                <input type="hidden" name="selected" value="{{ trend.trend_key }}">
+                                {% for interest in form.cleaned_data.interests %}
+                                    <input type="hidden" name="interests" value="{{ interest }}">
+                                {% endfor %}
+                                <button type="submit">Select for post</button>
+                            </form>
                         </div>
                         {% endfor %}
                     </div>
@@ -398,12 +571,75 @@
 
             <aside class="right-rail">
                 <div class="rail-card">
-                    <h3>Now</h3>
-                    <p>Track the most active topics and keep a pulse on your categories.</p>
+                    <h3>Post Studio</h3>
+                    <div class="post-studio">
+                        {% if selected_trend %}
+                            <div class="post-studio-inner">
+                                <p class="trend-context"><strong>{{ selected_trend.topic }}</strong></p>
+                                <p class="trend-context">{{ selected_trend.context }}</p>
+                                <form method="post" class="post-form">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="generate_post">
+                                    <input type="hidden" name="trend_key" value="{{ selected_trend.trend_key }}">
+                                    <input type="hidden" name="topic" value="{{ selected_trend.topic }}">
+                                    <input type="hidden" name="context" value="{{ selected_trend.context }}">
+                                    <input type="hidden" name="category" value="{{ selected_trend.category }}">
+                                    <div class="post-grid">
+                                        <div class="post-field">
+                                            <label for="tone">Tone</label>
+                                            <input id="tone" name="tone" placeholder="Professional, friendly, bold">
+                                        </div>
+                                        <div class="post-field">
+                                            <label for="audience">Audience</label>
+                                            <input id="audience" name="audience" placeholder="Founders, marketers, students">
+                                        </div>
+                                        <div class="post-field">
+                                            <label for="length">Length</label>
+                                            <select id="length" name="length">
+                                                <option value="short">Short</option>
+                                                <option value="medium">Medium</option>
+                                                <option value="long">Long</option>
+                                            </select>
+                                        </div>
+                                        <div class="post-field">
+                                            <label for="emoji">Emoji style</label>
+                                            <select id="emoji" name="emoji_style">
+                                                <option value="none">None</option>
+                                                <option value="light" selected>Light</option>
+                                                <option value="expressive">Expressive</option>
+                                            </select>
+                                        </div>
+                                        <div class="post-field">
+                                            <label for="cta">CTA</label>
+                                            <input id="cta" name="cta" placeholder="Ask for opinions, share, follow">
+                                        </div>
+                                        <div class="post-field">
+                                            <label for="hashtags">Hashtags</label>
+                                            <input id="hashtags" name="hashtags" placeholder="#AI #Marketing #Trends">
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="post-studio-actions">
+                                <form method="post" class="post-actions-form">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="generate_post">
+                                    <input type="hidden" name="trend_key" value="{{ selected_trend.trend_key }}">
+                                    <input type="hidden" name="topic" value="{{ selected_trend.topic }}">
+                                    <input type="hidden" name="context" value="{{ selected_trend.context }}">
+                                    <input type="hidden" name="category" value="{{ selected_trend.category }}">
+                                    <button type="submit">Generate Content</button>
+                                </form>
+                                <span class="trend-source">LinkedIn · Instagram · X</span>
+                            </div>
+                        {% else %}
+                            <p class="trend-context">Select a trend from the feed to start drafting a post.</p>
+                        {% endif %}
+                    </div>
                 </div>
                 <div class="rail-card">
-                    <h3>Next</h3>
-                    <p>Promote stories that matter. This space is ready for your agent insights.</p>
+                    <h3>Output</h3>
+                    <p class="trend-context">Your AI draft opens on a new page after generation.</p>
                 </div>
             </aside>
         </div>
