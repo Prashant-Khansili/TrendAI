@@ -120,6 +120,14 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+# Simple local cache for generated content.
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'trendai-cache',
+    }
+}
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
